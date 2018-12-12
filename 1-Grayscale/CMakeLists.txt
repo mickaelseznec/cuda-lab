@@ -16,7 +16,12 @@ if(LIBTIFF)
 else()
     message("Unable to find libtiff, let's build our own")
 
-    execute_process(COMMAND git submodule update --init -- external/libtiff
+    execute_process(COMMAND git submodule update --init -- ../external/libtiff
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    add_subdirectory(external/libtiff)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../external/libtiff ${CMAKE_CURRENT_SOURCE_DIR}/../external/libtiff-local)
+    add_dependencies(grayscale tiff)
+
+    target_include_directories(grayscale PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../external/libtiff/libtiff/
+        ${CMAKE_CURRENT_SOURCE_DIR}/../external/libtiff-local/libtiff/)
+    target_link_libraries(grayscale PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../external/libtiff-local/libtiff/libtiff.dylib)
 endif()
