@@ -1,3 +1,0 @@
-[submodule "external/libtiff"]
-	path = external/libtiff
-	url = https://gitlab.com/libtiff/libtiff.git
