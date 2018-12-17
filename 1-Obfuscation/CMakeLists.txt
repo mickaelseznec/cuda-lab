@@ -21,8 +21,8 @@ if(NOT (LIBTIFF AND TIFF_H))
     execute_process(COMMAND ${CMAKE_COMMAND} --build .
         WORKING_DIRECTORY ${LIBTIFF_DIR})
 
-    find_library(LIBTIFF "libtiff" "${LIBTIFF_DIR}/lib")
-    find_path(TIFF_H "tiff.h" ${LIBTIFF_DIR}/include)
+    find_library(LIBTIFF "tiff" PATHS ${LIBTIFF_DIR}/lib)
+    find_path(TIFF_H "tiff.h" PATHS ${LIBTIFF_DIR}/include)
 endif()
 
 target_include_directories(obfuscation PUBLIC ${TIFF_H})
