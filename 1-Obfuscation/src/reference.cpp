@@ -3,7 +3,8 @@
 
 #include "obfuscate.hpp"
 
-void compare_images(uint8_t *buffer_1, uint8_t *buffer_2, uint32_t width, uint32_t height)
+template<typename T>
+void compare_images(T *buffer_1, T *buffer_2, uint32_t width, uint32_t height)
 {
     int errors = 0;
     bool first = true;
@@ -28,12 +29,29 @@ void compare_images(uint8_t *buffer_1, uint8_t *buffer_2, uint32_t width, uint32
     }
 }
 
-void reference_adder(uint8_t *in_buffer_1, uint8_t *in_buffer_2, uint32_t width, uint32_t height, uint8_t *out_buffer)
+template void compare_images<uint8_t>(uint8_t *, uint8_t *, uint32_t, uint32_t);
+template void compare_images<uint32_t>(uint32_t *, uint32_t *, uint32_t, uint32_t);
+
+void reference_exercise_1(uint8_t *in_buffer_1, uint8_t *in_buffer_2, uint32_t width, uint32_t height, uint8_t *out_buffer)
 {
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
             const int index = j * width + i;
             out_buffer[index] = (in_buffer_1[index] + in_buffer_2[index]) % 255;
+        }
+    }
+}
+
+void reference_exercise_2(uint32_t *in_buffer_1, uint32_t *in_buffer_2, uint32_t width, uint32_t height, uint32_t *out_buffer)
+{
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
+            const int index = j * width + i;
+            uint32_t val_1 = in_buffer_1[index];
+            uint32_t val_2 = in_buffer_2[index];
+            out_buffer[index] = make_RGB(get_R(val_1) + get_R(val_2),
+                    get_G(val_1) + get_G(val_2),
+                    get_B(val_1) + get_B(val_2));
         }
     }
 }
