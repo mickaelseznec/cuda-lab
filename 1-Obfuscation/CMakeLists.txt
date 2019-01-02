@@ -5,12 +5,7 @@ project(obfuscation)
 set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 set(LIBTIFF_DIR ${ROOT_DIR}/external/libtiff)
 
-add_executable(obfuscation  src/main.cpp
-                            src/reference.cpp
-                            )
-target_include_directories(obfuscation PUBLIC include)
-set(CMAKE_CXX_FLAGS "-std=c++11")
-
+find_package(CUDA REQUIRED)
 find_library(LIBTIFF "tiff" PATHS ${LIBTIFF_DIR}/lib)
 find_path(TIFF_H "tiff.h" PATHS ${LIBTIFF_DIR}/include)
 
@@ -25,5 +20,16 @@ if(NOT (LIBTIFF AND TIFF_H))
     find_path(TIFF_H "tiff.h" PATHS ${LIBTIFF_DIR}/include)
 endif()
 
+set(CUDA_SEPARABLE_COMPILATION ON)
+set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CUDA_NVCC_FLAGS "-lineinfo;-I${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+add_executable(obfuscation  src/main.cpp
+                            src/reference.cpp
+                            )
+target_include_directories(obfuscation PUBLIC include)
+
+cuda_add_library(obfuscation_cuda   src/obfuscate.cu)
+
 target_include_directories(obfuscation PUBLIC ${TIFF_H})
-target_link_libraries(obfuscation PUBLIC ${LIBTIFF})
+target_link_libraries(obfuscation PUBLIC obfuscation_cuda ${LIBTIFF})

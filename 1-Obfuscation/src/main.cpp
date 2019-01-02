@@ -48,36 +48,48 @@ void exercise_1(void)
     TIFFGetField(tiff_fragment_1, TIFFTAG_IMAGEWIDTH, &image_width);
     TIFFGetField(tiff_fragment_1, TIFFTAG_IMAGELENGTH, &image_height);
 
-    uint32_t *fragment_buffer_1 = (uint32_t *) _TIFFmalloc(image_width * image_height * sizeof(uint32_t));
-    uint32_t *fragment_buffer_2 = (uint32_t *) _TIFFmalloc(image_width * image_height * sizeof(uint32_t));
+    tsize_t tiff_ss_1 = TIFFStripSize(tiff_fragment_1);
+    tsize_t tiff_ss_2 = TIFFStripSize(tiff_fragment_2);
+
+    uint8_t *fragment_buffer_1 = (uint8_t *) _TIFFmalloc(tiff_ss_1 * TIFFNumberOfStrips(tiff_fragment_1));
+    uint8_t *fragment_buffer_2 = (uint8_t *) _TIFFmalloc(tiff_ss_2 * TIFFNumberOfStrips(tiff_fragment_2));
+
     if (fragment_buffer_1 == nullptr || fragment_buffer_2 == nullptr) {
         exit(EXIT_FAILURE);
     }
-    if (!TIFFReadRGBAImage(tiff_fragment_1, image_width, image_height, fragment_buffer_1, 0) ||
-            !TIFFReadRGBAImage(tiff_fragment_2, image_width, image_height, fragment_buffer_2, 0)) {
-        exit(EXIT_FAILURE);
+    for (int strip = 0; strip < TIFFNumberOfStrips(tiff_fragment_1); strip++) {
+        TIFFReadEncodedStrip(tiff_fragment_1, strip, fragment_buffer_1 + strip * tiff_ss_1, tiff_ss_1);
+    }
+    for (int strip = 0; strip < TIFFNumberOfStrips(tiff_fragment_2); strip++) {
+        TIFFReadEncodedStrip(tiff_fragment_2, strip, fragment_buffer_2 + strip * tiff_ss_2, tiff_ss_2);
     }
 
-    uint32_t *ref_sum_buffer = (uint32_t *) _TIFFmalloc(image_width * image_height * sizeof(uint32_t));
+    uint8_t *out_buffer = (uint8_t *) _TIFFmalloc(image_width * image_height * sizeof(uint8_t));
+    cuda_adder(fragment_buffer_1, fragment_buffer_2, image_width, image_height, out_buffer);
+
+    uint8_t *ref_sum_buffer = (uint8_t *) _TIFFmalloc(image_width * image_height * sizeof(uint8_t));
     reference_adder(fragment_buffer_1, fragment_buffer_2, image_width, image_height, ref_sum_buffer);
+
+    compare_images(ref_sum_buffer, out_buffer, image_width, image_height);
 
     TIFF *out_file = TIFFOpen(sum.c_str(), "w");
     TIFFSetField(out_file, TIFFTAG_IMAGEWIDTH, image_width);
     TIFFSetField(out_file, TIFFTAG_IMAGELENGTH, image_height);
-    TIFFSetField(out_file, TIFFTAG_SAMPLESPERPIXEL, 4);
+    TIFFSetField(out_file, TIFFTAG_SAMPLESPERPIXEL, 1);
     TIFFSetField(out_file, TIFFTAG_BITSPERSAMPLE, 8);
     /* TIFFSetField(out_file, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT); */
     TIFFSetField(out_file, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
-    TIFFSetField(out_file, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-
+    TIFFSetField(out_file, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
     TIFFSetField(out_file, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(out_file, image_width * sizeof(uint32_t)));
+
     for (uint32_t row = 0; row < image_height; row++) {
-        TIFFWriteScanline(out_file, &ref_sum_buffer[(image_height - 1 - row)*image_width], row, 0);
+        TIFFWriteScanline(out_file, &out_buffer[row*image_width], row, 0);
     }
 
     _TIFFfree(fragment_buffer_1);
     _TIFFfree(fragment_buffer_2);
     _TIFFfree(ref_sum_buffer);
+    _TIFFfree(out_buffer);
     TIFFClose(tiff_fragment_1);
     TIFFClose(tiff_fragment_2);
     TIFFClose(out_file);
