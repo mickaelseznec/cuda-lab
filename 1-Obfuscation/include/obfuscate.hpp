@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <cuda.h>
+#include <cuda_runtime.h>
 
 #define CUDA_CHECK(err) \
 do {\
@@ -29,3 +30,5 @@ static inline uint8_t get_R(uint32_t value) {return value & 0x000000FF;}
 static inline uint8_t get_G(uint32_t value) {return (value & 0x0000FF00) >> 8;}
 static inline uint8_t get_B(uint32_t value) {return (value & 0x00FF0000) >> 16;}
 static inline uint32_t make_RGB(uint8_t R, uint8_t G, uint8_t B) { return R + (G << 8) + (B << 16); }
+
+extern cudaEvent_t start_memory, start_kernel, start_copyback, end;
