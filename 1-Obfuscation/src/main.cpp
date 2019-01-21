@@ -45,7 +45,7 @@ void exercise_1(void)
 
     TIFF *tiff_fragment_1 = TIFFOpen(fragment_1.c_str(), "r");
     TIFF *tiff_fragment_2 = TIFFOpen(fragment_2.c_str(), "r");
-    if (tiff_fragment_1 == nullptr || tiff_fragment_2 == nullptr) {
+    if (tiff_fragment_1 == NULL || tiff_fragment_2 == NULL) {
         exit(EXIT_FAILURE);
     }
 
@@ -59,7 +59,7 @@ void exercise_1(void)
     uint8_t *fragment_buffer_1 = (uint8_t *) _TIFFmalloc(tiff_ss_1 * TIFFNumberOfStrips(tiff_fragment_1));
     uint8_t *fragment_buffer_2 = (uint8_t *) _TIFFmalloc(tiff_ss_2 * TIFFNumberOfStrips(tiff_fragment_2));
 
-    if (fragment_buffer_1 == nullptr || fragment_buffer_2 == nullptr) {
+    if (fragment_buffer_1 == NULL || fragment_buffer_2 == NULL) {
         exit(EXIT_FAILURE);
     }
     for (int strip = 0; strip < TIFFNumberOfStrips(tiff_fragment_1); strip++) {
@@ -125,7 +125,7 @@ void exercise_2(void)
 
     TIFF *tiff_fragment_1 = TIFFOpen(fragment_1.c_str(), "r");
     TIFF *tiff_fragment_2 = TIFFOpen(fragment_2.c_str(), "r");
-    if (tiff_fragment_1 == nullptr || tiff_fragment_2 == nullptr) {
+    if (tiff_fragment_1 == NULL || tiff_fragment_2 == NULL) {
         exit(EXIT_FAILURE);
     }
 
@@ -139,7 +139,7 @@ void exercise_2(void)
     uint32_t *fragment_buffer_1 = (uint32_t *) _TIFFmalloc(tiff_ss_1 * TIFFNumberOfStrips(tiff_fragment_1));
     uint32_t *fragment_buffer_2 = (uint32_t *) _TIFFmalloc(tiff_ss_2 * TIFFNumberOfStrips(tiff_fragment_2));
 
-    if (fragment_buffer_1 == nullptr || fragment_buffer_2 == nullptr) {
+    if (fragment_buffer_1 == NULL || fragment_buffer_2 == NULL) {
         exit(EXIT_FAILURE);
     }
     for (int strip = 0; strip < TIFFNumberOfStrips(tiff_fragment_1); strip++) {

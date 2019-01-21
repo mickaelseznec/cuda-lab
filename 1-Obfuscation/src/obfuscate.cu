@@ -16,7 +16,7 @@ void k_cuda_exercise_1(uint8_t *d_in_buffer_1, uint8_t *d_in_buffer_2, uint32_t 
 
 void cuda_exercise_1(uint8_t *in_buffer_1, uint8_t *in_buffer_2, uint32_t width, uint32_t height, uint8_t *out_buffer)
 {
-    uint8_t *d_in_buffer_1 = nullptr, *d_in_buffer_2 = nullptr, *d_out_buffer = nullptr;
+    uint8_t *d_in_buffer_1 = NULL, *d_in_buffer_2 = NULL, *d_out_buffer = NULL;
     const int size_bytes = width * height * sizeof(uint8_t);
 
     cudaEventRecord(start_memory);
@@ -53,7 +53,7 @@ void k_cuda_exercise_2(uint32_t *d_in_buffer_1, uint32_t *d_in_buffer_2, uint32_
 
 void cuda_exercise_2(uint32_t *in_buffer_1, uint32_t *in_buffer_2, uint32_t width, uint32_t height, uint32_t *out_buffer)
 {
-    uint32_t *d_in_buffer_1 = nullptr, *d_in_buffer_2 = nullptr, *d_out_buffer = nullptr;
+    uint32_t *d_in_buffer_1 = NULL, *d_in_buffer_2 = NULL, *d_out_buffer = NULL;
     const int size_bytes = width * height * sizeof(uint32_t);
 
     cudaEventRecord(start_memory);

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 2.8)
 
 project(obfuscation)
 
@@ -21,7 +21,6 @@ if(NOT (LIBTIFF AND TIFF_H))
 endif()
 
 set(CUDA_SEPARABLE_COMPILATION ON)
-set(CMAKE_CXX_FLAGS "-std=c++11")
 set(CUDA_NVCC_FLAGS "-lineinfo;-I${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 add_executable(obfuscation  src/main.cpp
