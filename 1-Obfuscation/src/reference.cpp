@@ -37,7 +37,7 @@ void reference_exercise_1(uint8_t *in_buffer_1, uint8_t *in_buffer_2, uint32_t w
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
             const int index = j * width + i;
-            out_buffer[index] = (in_buffer_1[index] + in_buffer_2[index]) % 255;
+            out_buffer[index] = in_buffer_1[index] + in_buffer_2[index];
         }
     }
 }
