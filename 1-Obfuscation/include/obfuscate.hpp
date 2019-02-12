@@ -29,6 +29,6 @@ void compare_images(T *buffer_1, T *buffer_2, uint32_t width, uint32_t height);
 static inline uint8_t get_R(uint32_t value) {return value & 0x000000FF;}
 static inline uint8_t get_G(uint32_t value) {return (value & 0x0000FF00) >> 8;}
 static inline uint8_t get_B(uint32_t value) {return (value & 0x00FF0000) >> 16;}
-static inline uint32_t make_RGB(uint8_t R, uint8_t G, uint8_t B) { return R + (G << 8) + (B << 16); }
+static inline uint32_t make_RGB(uint8_t R, uint8_t G, uint8_t B) { return R + (G << 8) + (B << 16) + 0xFF000000;}
 
 extern cudaEvent_t start_memory, start_kernel, start_copyback, end;

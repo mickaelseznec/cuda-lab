@@ -136,18 +136,15 @@ void exercise_2(void)
     tsize_t tiff_ss_1 = TIFFStripSize(tiff_fragment_1);
     tsize_t tiff_ss_2 = TIFFStripSize(tiff_fragment_2);
 
-    uint32_t *fragment_buffer_1 = (uint32_t *) _TIFFmalloc(tiff_ss_1 * TIFFNumberOfStrips(tiff_fragment_1));
-    uint32_t *fragment_buffer_2 = (uint32_t *) _TIFFmalloc(tiff_ss_2 * TIFFNumberOfStrips(tiff_fragment_2));
+    uint32_t *fragment_buffer_1 = (uint32_t *) _TIFFmalloc(image_width * image_height * sizeof(uint32_t));
+    uint32_t *fragment_buffer_2 = (uint32_t *) _TIFFmalloc(image_width * image_height * sizeof(uint32_t));
 
     if (fragment_buffer_1 == NULL || fragment_buffer_2 == NULL) {
         exit(EXIT_FAILURE);
     }
-    for (int strip = 0; strip < TIFFNumberOfStrips(tiff_fragment_1); strip++) {
-        TIFFReadEncodedStrip(tiff_fragment_1, strip, fragment_buffer_1 + strip * tiff_ss_1, tiff_ss_1);
-    }
-    for (int strip = 0; strip < TIFFNumberOfStrips(tiff_fragment_2); strip++) {
-        TIFFReadEncodedStrip(tiff_fragment_2, strip, fragment_buffer_2 + strip * tiff_ss_2, tiff_ss_2);
-    }
+
+    TIFFReadRGBAImage(tiff_fragment_1, image_width, image_height, fragment_buffer_1, 0);
+    TIFFReadRGBAImage(tiff_fragment_2, image_width, image_height, fragment_buffer_2, 0);
 
     uint32_t *out_buffer = (uint32_t *) _TIFFmalloc(image_width * image_height * sizeof(uint32_t));
     cuda_exercise_2(fragment_buffer_1, fragment_buffer_2, image_width, image_height, out_buffer);
@@ -186,7 +183,7 @@ void exercise_2(void)
     TIFFSetField(out_file, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(out_file, image_width * sizeof(uint32_t)));
 
     for (uint32_t row = 0; row < image_height; row++) {
-        TIFFWriteScanline(out_file, &out_buffer[row*image_width], row, 0);
+        TIFFWriteScanline(out_file, &out_buffer[(image_height - 1 - row)*image_width], row, 0);
     }
 
     _TIFFfree(fragment_buffer_1);
