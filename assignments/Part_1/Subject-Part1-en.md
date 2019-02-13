@@ -60,7 +60,7 @@ In obfuscate.cu, you will have to implement the basic framework of any CUDA prog
 
 Some code is already there to help you. In this exercise, you are expected to run your kernel within a **single** block. Just make it the appropriate size for your data.
 
-Here is the image is reprensented as a contiguous array of unsigned bytes (grayscale). You just need to sum the two input images and store the result in the output image.
+Here, the image is reprensented as a contiguous array of unsigned bytes (grayscale). You just need to sum the two input images and store the result in the output image.
 
 Feel free to use *reference.cpp* as an example for your kernel implementation. If you need details about a particular CUDA API, some documentation in also included at the root of this project. Just run `tar xzf documentation.tar.gz` to decompress it.
 
@@ -84,4 +84,4 @@ Same questions as before:
 * Compare to the time taken by the CPU implementation.
 
 And a new one:
-* What indicator could have predicted that not-so-good performance?
+* What is the influence of the block/grid division of the problem?
