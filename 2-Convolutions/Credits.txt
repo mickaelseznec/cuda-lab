@@ -1,0 +1,6 @@
+This project was originally from Udacity's CS344 problem set.
+
+Credits:
+Dr. David Luebke
+Dr. John Owens
+Dr. Dan Connors
