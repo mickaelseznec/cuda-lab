@@ -65,9 +65,9 @@ void cuda_exercise_2(uint32_t *in_buffer_1, uint32_t *in_buffer_2, uint32_t widt
 
     cudaEventRecord(start_kernel);
     //TODO 3: launch kernels with the right block and grid dimensions
-    dim3 gridSize(1, 1);
     dim3 blockSize(1, 1);
-    k_cuda_exercise_2<<<1, blockSize>>>(d_in_buffer_1, d_in_buffer_2, width, height, d_out_buffer);
+    dim3 gridSize(1, 1);
+    k_cuda_exercise_2<<<gridSize, blockSize>>>(d_in_buffer_1, d_in_buffer_2, width, height, d_out_buffer);
 
     cudaEventRecord(start_copyback);
     //TODO 4: copy d_out_buffer back to host
