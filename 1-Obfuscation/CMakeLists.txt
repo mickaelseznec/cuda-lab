@@ -25,8 +25,10 @@ set(CUDA_NVCC_FLAGS "-lineinfo;-I${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 add_executable(obfuscation  src/main.cpp
                             src/reference.cpp
+                            ${ROOT_DIR}/common/src/tiffutil.cpp
                             )
 target_include_directories(obfuscation PUBLIC include)
+target_include_directories(obfuscation PUBLIC ${ROOT_DIR}/common/include)
 
 cuda_add_library(obfuscation_cuda   src/obfuscate.cu)
 
