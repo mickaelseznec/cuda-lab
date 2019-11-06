@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
       globalError   = atof(argv[5]);
 	  break;
 	default:
-      std::cerr << "Usage: ./HW2 input_file [output_filename] [reference_filename] [perPixelError] [globalError]" << std::endl;
+      std::cerr << "Usage: " << argv[0] << " input_file [output_filename] [reference_filename] [perPixelError] [globalError]" << std::endl;
       exit(1);
   }
   //load the image and give us our input and output pointers
@@ -106,9 +106,6 @@ int main(int argc, char **argv) {
                        h_filter, filterWidth);
 
   postProcess(reference_file, h_outputImageRGBA);
-
-    //  Cheater easy way with OpenCV
-    //generateReferenceImage(input_file, reference_file, filterWidth);
 
   compareImages(reference_file, output_file, useEpsCheck, perPixelError, globalError);
 
