@@ -1,21 +1,20 @@
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/opencv.hpp>
 #include "utils.h"
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <string>
+#include <cmath>
 
-cv::Mat imageInputRGBA;
-cv::Mat imageOutputRGBA;
+#include "tiffutil.hpp"
+
+uint32_t image_width, image_height;
 
 uchar4 *d_inputImageRGBA__;
 uchar4 *d_outputImageRGBA__;
 
 float *h_filter__;
 
-size_t numRows() { return imageInputRGBA.rows; }
-size_t numCols() { return imageInputRGBA.cols; }
+size_t numRows() { return image_height; }
+size_t numCols() { return image_width; }
 
 //return types are void since any internal error will be handled by quitting
 //no point in returning error codes...
@@ -33,32 +32,26 @@ void preProcess(uchar4 **h_inputImageRGBA, uchar4 **h_outputImageRGBA,
   //make sure the context initializes ok
   checkCudaErrors(cudaFree(0));
 
-  cv::Mat image = cv::imread(filename.c_str(), CV_LOAD_IMAGE_COLOR);
-  if (image.empty()) {
+  uint32_t *image_buffer;
+
+  int ret = read_tiff_rgba(filename, &image_buffer, &image_width, &image_height);
+
+  if (ret != 0) {
     std::cerr << "Couldn't open file: " << filename << std::endl;
     exit(1);
   }
 
-  cv::cvtColor(image, imageInputRGBA, CV_BGR2RGBA);
+  uint32_t *out_buffer = (uint32_t *) _TIFFmalloc(image_width * image_height * sizeof(uint32_t));
 
-  //allocate memory for the output
-  imageOutputRGBA.create(image.rows, image.cols, CV_8UC4);
-
-  //This shouldn't ever happen given the way the images are created
-  //at least based upon my limited understanding of OpenCV, but better to check
-  if (!imageInputRGBA.isContinuous() || !imageOutputRGBA.isContinuous()) {
-    std::cerr << "Images aren't continuous!! Exiting." << std::endl;
-    exit(1);
-  }
-
-  *h_inputImageRGBA  = (uchar4 *)imageInputRGBA.ptr<unsigned char>(0);
-  *h_outputImageRGBA = (uchar4 *)imageOutputRGBA.ptr<unsigned char>(0);
+  *h_inputImageRGBA  = (uchar4 *) image_buffer;
+  *h_outputImageRGBA = (uchar4 *) out_buffer;
 
   const size_t numPixels = numRows() * numCols();
   //allocate memory on the device for both input and output
   checkCudaErrors(cudaMalloc(d_inputImageRGBA, sizeof(uchar4) * numPixels));
   checkCudaErrors(cudaMalloc(d_outputImageRGBA, sizeof(uchar4) * numPixels));
-  checkCudaErrors(cudaMemset(*d_outputImageRGBA, 0, numPixels * sizeof(uchar4))); //make sure no memory is left laying around
+  checkCudaErrors(cudaMemset(*d_outputImageRGBA, 0, numPixels * sizeof(uchar4)));
+  //make sure no memory is left laying around
 
   //copy input array to the GPU
   checkCudaErrors(cudaMemcpy(*d_inputImageRGBA, *h_inputImageRGBA, sizeof(uchar4) * numPixels, cudaMemcpyHostToDevice));
@@ -104,12 +97,7 @@ void preProcess(uchar4 **h_inputImageRGBA, uchar4 **h_outputImageRGBA,
 }
 
 void postProcess(const std::string& output_file, uchar4* data_ptr) {
-  cv::Mat output(numRows(), numCols(), CV_8UC4, (void*)data_ptr);
-
-  cv::Mat imageOutputBGR;
-  cv::cvtColor(output, imageOutputBGR, CV_RGBA2BGR);
-  //output the image
-  cv::imwrite(output_file.c_str(), imageOutputBGR);
+  write_tiff_rgba(output_file, reinterpret_cast<uint32_t *>(data_ptr), image_width, image_height);
 }
 
 void cleanUp(void)
@@ -119,14 +107,3 @@ void cleanUp(void)
   delete[] h_filter__;
 }
 
-
-// An unused bit of code showing how to accomplish this assignment using OpenCV.  It is much faster 
-//    than the naive implementation in reference_calc.cpp.
-void generateReferenceImage(std::string input_file, std::string reference_file, int kernel_size)
-{
-	cv::Mat input = cv::imread(input_file);
-	// Create an identical image for the output as a placeholder
-	cv::Mat reference = cv::imread(input_file);
-	cv::GaussianBlur(input, reference, cv::Size2i(kernel_size, kernel_size),0);
-	cv::imwrite(reference_file, reference);
-}

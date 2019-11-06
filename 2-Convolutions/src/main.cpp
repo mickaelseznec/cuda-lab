@@ -47,31 +47,21 @@ int main(int argc, char **argv) {
   {
 	case 2:
 	  input_file = std::string(argv[1]);
-	  output_file = "HW2_output.png";
-	  reference_file = "HW2_reference.png";
-	  break;
-	case 3:
-	  input_file  = std::string(argv[1]);
-      output_file = std::string(argv[2]);
-	  reference_file = "HW2_reference.png";
 	  break;
 	case 4:
-	  input_file  = std::string(argv[1]);
-      output_file = std::string(argv[2]);
-	  reference_file = std::string(argv[3]);
-	  break;
-	case 6:
 	  useEpsCheck=true;
 	  input_file  = std::string(argv[1]);
-	  output_file = std::string(argv[2]);
-	  reference_file = std::string(argv[3]);
-	  perPixelError = atof(argv[4]);
-      globalError   = atof(argv[5]);
+	  perPixelError = atof(argv[2]);
+      globalError   = atof(argv[3]);
 	  break;
 	default:
-      std::cerr << "Usage: " << argv[0] << " input_file [output_filename] [reference_filename] [perPixelError] [globalError]" << std::endl;
+      std::cerr << "Usage: " << argv[0] << " input_file [{perPixelError, globalError}]"
+          << std::endl;
       exit(1);
   }
+  output_file = "convolution_output.tiff";
+  reference_file = "convolution_reference.tiff";
+
   //load the image and give us our input and output pointers
   preProcess(&h_inputImageRGBA, &h_outputImageRGBA, &d_inputImageRGBA, &d_outputImageRGBA,
              &d_redBlurred, &d_greenBlurred, &d_blueBlurred,
