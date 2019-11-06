@@ -63,7 +63,7 @@ void preProcess(uchar4 **h_inputImageRGBA, uchar4 **h_outputImageRGBA,
     const int blurKernelWidth = 9;
     const float blurKernelSigma = 2.;
 
-    *filterWidth = blurKernelWidth;
+    *filterWidth = FILTER_WIDTH;
 
     //create and fill the filter we will convolve with
     *h_filter = new float[blurKernelWidth * blurKernelWidth];

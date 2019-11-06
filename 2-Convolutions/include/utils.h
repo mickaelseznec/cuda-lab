@@ -9,12 +9,25 @@
 #include <cassert>
 #include <algorithm>
 
+#define FILTER_WIDTH (9)
 #define checkCudaErrors(val) check( (val), #val, __FILE__, __LINE__)
 
 static inline __host__ __device__ uint8_t get_R(uint32_t value) {return value & 0x000000FF;}
 static inline __host__ __device__ uint8_t get_G(uint32_t value) {return (value & 0x0000FF00) >> 8;}
 static inline __host__ __device__ uint8_t get_B(uint32_t value) {return (value & 0x00FF0000) >> 16;}
 static inline __host__ __device__ uint32_t make_RGB(uint8_t R, uint8_t G, uint8_t B) { return R + (G << 8) + (B << 16) + 0xFF000000;}
+
+template<typename T>
+__host__ __device__
+T clamp(T value, T min, T max) {
+    if (value < min) {
+        return min;
+    } else if (value > max) {
+        return max;
+    } else {
+        return value;
+    }
+}
 
 template<typename T>
 void check(T err, const char* const func, const char* const file, const int line) {

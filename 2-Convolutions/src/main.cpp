@@ -5,6 +5,7 @@
 #include "utils.h"
 #include <string>
 #include <stdio.h>
+#include <cstdlib>
 
 #include "reference_calc.h"
 #include "compare.h"
@@ -15,7 +16,24 @@
 
 /*******  DEFINED IN student_func.cu *********/
 
-void your_gaussian_blur(const uchar4 * const h_inputImageRGBA, uchar4 * const d_inputImageRGBA,
+void your_gaussian_blur_version_0(const uchar4 * const h_inputImageRGBA,
+        uchar4 * const d_inputImageRGBA,
+        uchar4* const d_outputImageRGBA,
+        const size_t numRows, const size_t numCols,
+        unsigned char *d_redBlurred,
+        unsigned char *d_greenBlurred,
+        unsigned char *d_blueBlurred,
+        const int filterWidth);
+void your_gaussian_blur_version_1(const uchar4 * const h_inputImageRGBA,
+        uchar4 * const d_inputImageRGBA,
+        uchar4* const d_outputImageRGBA,
+        const size_t numRows, const size_t numCols,
+        unsigned char *d_redBlurred,
+        unsigned char *d_greenBlurred,
+        unsigned char *d_blueBlurred,
+        const int filterWidth);
+void your_gaussian_blur_version_2(const uchar4 * const h_inputImageRGBA,
+        uchar4 * const d_inputImageRGBA,
         uchar4* const d_outputImageRGBA,
         const size_t numRows, const size_t numCols,
         unsigned char *d_redBlurred,
@@ -43,19 +61,22 @@ int main(int argc, char **argv) {
     double perPixelError = 0.0;
     double globalError   = 0.0;
     bool useEpsCheck = false;
+    int version = 0;
     switch (argc)
     {
-        case 2:
-            input_file = std::string(argv[1]);
+        case 3:
+            version = atoi(argv[1]);
+            input_file = std::string(argv[2]);
             break;
-        case 4:
+        case 5:
             useEpsCheck=true;
-            input_file  = std::string(argv[1]);
-            perPixelError = atof(argv[2]);
-            globalError   = atof(argv[3]);
+            version = atoi(argv[1]);
+            input_file  = std::string(argv[2]);
+            perPixelError = atof(argv[3]);
+            globalError   = atof(argv[4]);
             break;
         default:
-            std::cerr << "Usage: " << argv[0] << " input_file [{perPixelError, globalError}]"
+            std::cerr << "Usage: " << argv[0] << " version input_file [{perPixelError, globalError}]"
                 << std::endl;
             exit(1);
     }
@@ -71,8 +92,24 @@ int main(int argc, char **argv) {
     GpuTimer timer;
     timer.Start();
     //call the students' code
-    your_gaussian_blur(h_inputImageRGBA, d_inputImageRGBA, d_outputImageRGBA, numRows(), numCols(),
-            d_redBlurred, d_greenBlurred, d_blueBlurred, filterWidth);
+    switch (version)
+    {
+        case 2:
+            your_gaussian_blur_version_2(h_inputImageRGBA,
+                    d_inputImageRGBA, d_outputImageRGBA, numRows(), numCols(),
+                    d_redBlurred, d_greenBlurred, d_blueBlurred, filterWidth);
+            break;
+        case 1:
+            your_gaussian_blur_version_1(h_inputImageRGBA,
+                    d_inputImageRGBA, d_outputImageRGBA, numRows(), numCols(),
+                    d_redBlurred, d_greenBlurred, d_blueBlurred, filterWidth);
+            break;
+        case 0:
+        default:
+            your_gaussian_blur_version_0(h_inputImageRGBA,
+                    d_inputImageRGBA, d_outputImageRGBA, numRows(), numCols(),
+                    d_redBlurred, d_greenBlurred, d_blueBlurred, filterWidth);
+    }
     timer.Stop();
     cudaDeviceSynchronize(); checkCudaErrors(cudaGetLastError());
     int err = printf("Your code ran in: %f msecs.\n", timer.Elapsed());
@@ -89,15 +126,19 @@ int main(int argc, char **argv) {
     //copy the output back to the host
     checkCudaErrors(cudaMemcpy(h_outputImageRGBA, d_outputImageRGBA__, sizeof(uchar4) * numPixels, cudaMemcpyDeviceToHost));
 
-    postProcess(output_file, h_outputImageRGBA);
+    if (numPixels < 1e6) {
+        postProcess(output_file, h_outputImageRGBA);
 
-    referenceCalculation(h_inputImageRGBA, h_outputImageRGBA,
-            numRows(), numCols(),
-            h_filter, filterWidth);
+        referenceCalculation(h_inputImageRGBA, h_outputImageRGBA,
+                numRows(), numCols(),
+                h_filter, filterWidth);
 
-    postProcess(reference_file, h_outputImageRGBA);
+        postProcess(reference_file, h_outputImageRGBA);
 
-    compareImages(reference_file, output_file, useEpsCheck, perPixelError, globalError);
+        compareImages(reference_file, output_file, useEpsCheck, perPixelError, globalError);
+    } else {
+        std::cout << "Skipping image verification, image too large." << std::endl;
+    }
 
     checkCudaErrors(cudaFree(d_redBlurred));
     checkCudaErrors(cudaFree(d_greenBlurred));
