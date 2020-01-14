@@ -2,13 +2,13 @@
 
 ## Intro
 
-Why make things simple when the can be complex? Obfuscation is the art making something hard to understand at the first sight. In this project, someone divided an image into two parts to make it impossible to understand. You goal is to recombine them to find out what was the original image.
+Obfuscation is the art making something hard to understand at the first sight. In this project, someone divided an image into two parts to make it impossible to understand. You goal is to recombine them to find out what was the original image.
 
 Go in the project *1-Obfuscation* and check the images in *data*. In Linux, you can open them from the terminal with `eog file.tif`.
 
-You will have to sum the two images to get a resulting picture.
+You will have to sum the two images to get the resulting picture.
 
-Please the subject entirely before beginning to write.
+Please read the subject entirely before writing any code!
 
 ### Code organization
 
@@ -27,7 +27,7 @@ Please the subject entirely before beginning to write.
 
 ### Build the code
 
-Just like *deviceQuery*, this is a cmake project. Once your are in *1-Obfuscation*, create and cd to a directory named *build*. Then `cmake ..` and `make`. Every time you do a change to your code, you will only need to run `make` and `./obfuscation exercise_1` to run the latest version.
+Just like *deviceQuery*, this is a cmake project. Once your are in *1-Obfuscation*, create and cd to a directory named *build*. Then run `cmake ..` and `make`. Every time you do make change in your code, you will only need to run `make` then `./obfuscation exercise_1` to run the latest version.
 
 ## CUDA firsts steps
 
@@ -46,22 +46,22 @@ Feel free to use *reference.cpp* as an example for your kernel implementation. I
 
 ## Questions
 
-* How much time does your CUDA takes? What fraction of this time is used for memory management?
-* Compare to the time taken by the CPU implementation.
+1. How much time does your CUDA takes? What fraction of this time is used for memory management?
+2. Compare with the time taken by the CPU implementation.
 
 # Obfuscation (Part II)
 
-Just a few changes from part I:
+They are a few changes with respect to part I:
 * the image is now RGB, stored on 32 bit-integers. Use the macros in obfuscate.hpp for your convenience.
-* the image is too large to fit into a single block. You will need a strategy to divide your problem into different blocks.
+* the image is now too large to fit into a single block. You will need a strategy to divide your problem into different blocks.
 
-Now you need to run `./obfuscation exercise_2`
+Run with `./obfuscation exercise_2`
 
 ## Questions
 
 Same questions as before:
-* How much time does your CUDA takes? What fraction of this time is used for memory management?
-* Compare to the time taken by the CPU implementation.
+1. How much time does your CUDA takes? What fraction of this time is used for memory management?
+2. Compare to the time taken by the CPU implementation.
 
 And a new one:
-* What is the influence of the block/grid division of the problem?
+3. What is the influence of the block/grid division of the problem on the runtime? For which block/grid size did you find the best execution time? Why is that the case?

@@ -11,7 +11,8 @@ We repeat this process for all the pixels in the image.
 
 To help get you started, we have included some useful notes here.
 
-## Structure transformation
+## Step 0
+### Structure transformation
 
 For a color image that has multiple channels, we suggest separating
 the different color channels so that each color is stored contiguously
@@ -31,9 +32,9 @@ separation. You should then write the "meat" of the assignment,
 which is the kernel that performs the actual blur. We provide code that
 re-combines your blurred results for each color channel.
 
-## Convolutions
+### Convolutions
 
-You must fill in the gaussian\_blur kernel to perform the blurring of the
+You must fill in the `gaussian_blur` kernel to perform the blurring of the
 inputChannel, using the array of weights, and put the result in the outputChannel.
 
 Here is an example of computing a blur, using a weighted average, for a single
@@ -61,7 +62,7 @@ Image (note that we align the array of weights to the center of the box):
 |   |    |   |    |   |   |  |                            |         |
 |   |    |(1)|    |   |   |  |             (2)            |     (3) |
 
-## Getting started
+### Getting started
 
 A good starting place is to map each thread to a pixel as you have before.
 Then every thread can perform steps 2 and 3 in the diagram above
@@ -90,3 +91,28 @@ any subsequent kernels won't compute anything, and it will be hard to figure out
 why. Writing code the safe way will inform you as soon as you make a mistake.
 
 Finally, remember to free the memory you allocate at the end of the function.
+
+Questions :
+    1. Once your program is verified to work on a small image, give the run-time on the large image `cinque_terre_large.tiff`.
+    2. Again, try to find the best grid/block combination in terms of performance.
+
+## Step 1
+
+In this new step, you'll have to make a small optimisation in the code. You can start from what you've done in step 0.
+
+The convolution filter will now be directly stocked in the constant memory rather than global memory.
+
+The variable as already been declared in the code: `filter_constant`. Now you have to transfer the filter using cudaMemcpyToSymbol. The CUDA documentation is still at the root of the project (or online).
+
+Questions :
+    3. What is the achieved speedup with this optimisation on the big image? Speedup = (Old_runtime- New_runtime) / New_runtime).
+
+## Step 2
+
+Once again, you can (and should!) re-use previous work.
+
+Now, we will use shared memory. It is available for every thread in the block. First all the threads will write into shared memory the image values they need. Afterwards, they won't need to access global memory but only rely on shared memory for reading the needed values.
+
+Questions :
+    4. Let the convolution filter be 5x5. How many times will any image pixel be read in the convolution operation?
+    5. What is the speedup with respect to step 1 and step 0?

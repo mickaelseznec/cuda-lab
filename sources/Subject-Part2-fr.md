@@ -94,4 +94,3 @@ Maintenant, on veut chercher a réutiliser les valeurs de l'image lues dans le b
 Questions :
     4. Pour une convolution avec un filtre de largeur et hauteur 5, combien de fois chaque pixel de l'image doit-il être lu ?
     5. Quel est le speedup par rapport à la partie 2 ?
-    6. (Bonus) Pour quelle(s) raison(s) le speedup n'est pas si élevé ?
